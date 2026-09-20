@@ -47,3 +47,7 @@ Tests exercise real HTTP requests and temporary SQLite storage, including duplic
 This delivery is a local VS Code project, not a published website. Use Node.js 24+ hosting with HTTPS and a persistent private disk. Static-only hosting cannot run the RSVP endpoint. Set `HOST=0.0.0.0` for a hosted service, `PORT` as required by the provider, and `DATA_DIR` to its persistent private storage location. Configure reverse-proxy rate limiting for public deployment (the built-in limiter uses the immediate connection address). Review the final details and add the photos and registry when ready. The server displays the RSVP deadline but continues to accept late responses so guests can update their plans.
 
 The primary contact email from the intake has intentionally not been included in the public website. A gentle remembrance has been included with the user's permission.
+
+## GitHub Pages preview
+The public preview is published from the docs folder on main. It explicitly does not collect RSVPs. Regenerate it after edits with: node scripts/build-pages.mjs. The full RSVP-capable website remains in public and runs with npm start. Never copy the data folder into docs.
+

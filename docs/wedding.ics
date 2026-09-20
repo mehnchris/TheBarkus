@@ -1,0 +1,13 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Brandon and Hope//Wedding//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:brandon-hope-wedding-20270423@wedding.local
+DTSTAMP:20260920T000000Z
+DTSTART:20270423T220000Z
+SUMMARY:Brandon & Hope's Wedding
+LOCATION:Lakeside Wedding Venue\, 33001 Lake Rd\, Shawnee\, OK 74801
+DESCRIPTION:Ceremony at 5:00 PM Central. Reception at 5:30 PM. Formal attire. Parking inside the gate at the front of the venue.
+END:VEVENT
+END:VCALENDAR

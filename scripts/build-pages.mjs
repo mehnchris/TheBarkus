@@ -1,0 +1,12 @@
+import {mkdirSync,readFileSync,writeFileSync,copyFileSync} from 'node:fs';
+import {join} from 'node:path';
+const root=process.cwd();
+mkdirSync(join(root,'docs'),{recursive:true});
+let html=readFileSync(join(root,'public/index.html'),'utf8');
+html=html.replace(/<form id="rsvp-form">[\s\S]*?<\/form>/,'<div class="rsvp-preview"><h3>Online RSVPs are coming soon.</h3><p>This is a preview of our wedding website. The RSVP form isn’t open yet, and no responses are being collected here.</p><p>Please check back to send your response before February 28, 2027.</p></div>');
+writeFileSync(join(root,'docs/index.html'),html);
+for(const file of ['styles.css','wedding.ics']) copyFileSync(join(root,'public',file),join(root,'docs',file));
+const script=readFileSync(join(root,'public/app.js'),'utf8').split("const form = document.querySelector('#rsvp-form');")[0];
+writeFileSync(join(root,'docs/app.js'),script);
+writeFileSync(join(root,'docs/.nojekyll'),'');
+console.log('Built GitHub Pages preview in docs; RSVP form excluded.');
