@@ -1,0 +1,1 @@
+{"version":"2.0.0","tasks":[{"label":"Start wedding website","type":"npm","script":"start","isBackground":true,"problemMatcher":[]}]}

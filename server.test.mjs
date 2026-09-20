@@ -1,0 +1,27 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
+import { createWeddingServer } from './server.mjs';
+test('RSVP persistence, updates, validation, and private data boundaries', async t => {
+ const dir = mkdtempSync(join(tmpdir(),'wedding-test-'));
+ const server = createWeddingServer({dataDir:dir});
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+ t.after(async()=>{await new Promise(resolve=>server.close(resolve));rmSync(dir,{recursive:true,force:true});});
+ const origin = `http://127.0.0.1:${server.address().port}`;
+ const send = body=>fetch(origin+'/api/rsvp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+ assert.equal((await fetch(origin)).status,200);
+ assert.equal((await send({name:'Test Guest',email:'guest@example.com',attending:'yes',plusOne:'Guest Two'})).status,200);
+ assert.equal((await send({name:'Test Guest',email:'guest@example.com',attending:'no',plusOne:'Ignored'})).status,200);
+ const db = new DatabaseSync(join(dir,'rsvps.sqlite'),{readOnly:true});
+ const rows = db.prepare('SELECT * FROM rsvps').all();
+ assert.equal(rows.length,1); assert.equal(rows[0].attending,'no'); assert.equal(rows[0].plus_one,''); db.close();
+ assert.equal((await send({name:'Test',email:'bad',attending:'yes'})).status,400);
+ assert.equal((await send({name:'Test',email:'a@b.com',attending:'yes',note:'x'.repeat(2001)})).status,400);
+ assert.equal((await fetch(origin+'/api/rsvp')).status,405);
+ assert.equal((await fetch(origin+'/data/rsvps.sqlite')).status,404);
+ assert.equal((await fetch(origin+'/server.mjs')).status,404);
+ assert.equal((await fetch(origin+'/api/rsvp',{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://other.example'},body:'{}'})).status,403);
+});
