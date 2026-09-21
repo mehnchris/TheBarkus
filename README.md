@@ -51,3 +51,7 @@ The primary contact email from the intake has intentionally not been included in
 ## GitHub Pages preview
 The public preview is published from the docs folder on main. It explicitly does not collect RSVPs. Regenerate it after edits with: node scripts/build-pages.mjs. The full RSVP-capable website remains in public and runs with npm start. Never copy the data folder into docs.
 
+
+## Google Sheets RSVP integration
+The Google backend and styled form are in google-apps-script. See google-apps-script/SETUP.md. Deployment is pending Google authorization and configuration; the public form remains closed until its tested deployment URL is supplied. Run node scripts/build-pages.mjs after changing the URL. No guest data is included in this repository.
+
