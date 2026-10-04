@@ -2,3 +2,6 @@ data/
 *.csv
 .env
 node_modules/
+
+/public/wedding-inspiration.png
+/docs/wedding-inspiration.png
