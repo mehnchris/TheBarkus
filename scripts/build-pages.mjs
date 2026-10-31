@@ -1,4 +1,4 @@
-import {mkdirSync,readFileSync,writeFileSync,copyFileSync} from 'node:fs';
+import {mkdirSync,readFileSync,writeFileSync,copyFileSync,cpSync} from 'node:fs';
 import {join} from 'node:path';
 const root=process.cwd();
 const config=JSON.parse(readFileSync(join(root,'google-apps-script/config.json'),'utf8'));
@@ -15,7 +15,9 @@ const replacement=url ? `<div class="rsvp-embed"><iframe src="${url}" title="Pri
 let html=source.replace(form,replacement);
 if(!url) html=html.replace('using the form below—even if you won’t be able to join us.','even if you won’t be able to join us. The online form will be available here soon.');
 writeFileSync(join(root,'docs/index.html'),html);
-for(const file of ['styles.css','wedding.ics','wedding-inspiration.jpg']) copyFileSync(join(root,'public',file),join(root,'docs',file));
-writeFileSync(join(root,'docs/app.js'),readFileSync(join(root,'public/app.js'),'utf8').split("const form = document.querySelector('#rsvp-form');")[0]);
+for(const file of ['styles.css','wedding.ics']) copyFileSync(join(root,'public',file),join(root,'docs',file));
+writeFileSync(join(root,'docs/app.js'),readFileSync(join(root,'public/app.js'),'utf8').split("const form = document.querySelector('#rsvp-form');")[0].trimEnd()+"\n");
 writeFileSync(join(root,'docs/.nojekyll'),'');
 console.log(url?'Built Pages with Google RSVP form.':'Prepared Apps Script form; Pages stays unavailable until deployment URL is configured.');
+
+cpSync(join(root,'public/photos'),join(root,'docs/photos'),{recursive:true});

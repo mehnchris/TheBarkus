@@ -11,7 +11,10 @@ export function createWeddingServer({ dataDir = process.env.DATA_DIR || join(roo
  const db = new DatabaseSync(join(dataDir, 'rsvps.sqlite'));
  db.exec(`PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS rsvps (id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL, attending TEXT NOT NULL, plus_one TEXT NOT NULL, song TEXT NOT NULL, note TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(email, name));`);
  const limits = new Map();
- const files = {'/wedding-inspiration.jpg':['wedding-inspiration.jpg','image/jpeg'],'/':['index.html','text/html; charset=utf-8'],'/index.html':['index.html','text/html; charset=utf-8'],'/styles.css':['styles.css','text/css; charset=utf-8'],'/app.js':['app.js','text/javascript; charset=utf-8'],'/wedding.ics':['wedding.ics','text/calendar; charset=utf-8']};
+ const files = {'/':['index.html','text/html; charset=utf-8'],'/index.html':['index.html','text/html; charset=utf-8'],'/styles.css':['styles.css','text/css; charset=utf-8'],'/app.js':['app.js','text/javascript; charset=utf-8'],'/wedding.ics':['wedding.ics','text/calendar; charset=utf-8']};
+ for (const name of ['close-together','our-path','sunlit-moment','always-you','by-the-lake','hand-in-hand','the-little-details']) {
+  for (const suffix of ['', '-thumb']) { const file = `photos/${name}${suffix}.webp`; files[`/${file}`] = [file, 'image/webp']; }
+ }
  const server = http.createServer(async (req,res) => {
   res.setHeader('X-Content-Type-Options','nosniff');
   res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');

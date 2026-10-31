@@ -23,7 +23,7 @@ if ('IntersectionObserver' in window) {
    reveal.unobserve(entry.target);
   }
  }, {threshold: 0.12});
- document.querySelectorAll('.intro, .timeline article, .inspiration-copy, .event, .venue, .travel-row').forEach(element => reveal.observe(element));
+ document.querySelectorAll('.intro, .timeline article, .gallery-copy, .event, .venue, .travel-row').forEach(element => reveal.observe(element));
  const sections = new IntersectionObserver(entries => {
   for (const entry of entries) if (entry.isIntersecting) {
    nav.querySelectorAll('a').forEach(link => {
@@ -33,4 +33,46 @@ if ('IntersectionObserver' in window) {
   }
  }, {rootMargin: '-15% 0px -55% 0px', threshold: 0});
  document.querySelectorAll('main section[id]').forEach(section => sections.observe(section));
+}
+// Photo links remain usable when JavaScript is unavailable.
+const gallery = document.querySelector('.gallery-viewer');
+if (gallery) {
+ const photos = [...gallery.querySelectorAll('[data-photo]')];
+ const image = document.getElementById('gallery-image');
+ const play = document.getElementById('photo-play');
+ const count = document.getElementById('photo-count');
+ const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+ let current = 0;
+ let timer;
+ function stopSlideshow() {
+  clearInterval(timer); timer = undefined;
+  play.textContent = 'Play slideshow'; play.setAttribute('aria-pressed', 'false');
+  count.setAttribute('aria-live', 'polite');
+ }
+ function showPhoto(index) {
+  current = (index + photos.length) % photos.length;
+  const link = photos[current];
+  image.src = link.href;
+  image.alt = link.getAttribute('aria-label').replace(/^View photo \d+: /, '');
+  document.getElementById('photo-full').href = link.href;
+  document.getElementById('photo-caption').textContent = `A little glimpse of us · ${String(current + 1).padStart(2, '0')} / 07`;
+  count.textContent = `Photo ${current + 1} of ${photos.length}`;
+  photos.forEach((photo, i) => { if (i === current) photo.setAttribute('aria-current', 'true'); else photo.removeAttribute('aria-current'); });
+ }
+ gallery.querySelector('.gallery-controls').hidden = false;
+ photos.forEach((photo, i) => photo.addEventListener('click', event => { if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); stopSlideshow(); showPhoto(i); }));
+ document.getElementById('photo-prev').addEventListener('click', () => { stopSlideshow(); showPhoto(current - 1); });
+ document.getElementById('photo-next').addEventListener('click', () => { stopSlideshow(); showPhoto(current + 1); });
+ gallery.addEventListener('keydown', event => {
+  if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); stopSlideshow(); showPhoto(current + (event.key === 'ArrowLeft' ? -1 : 1)); }
+ });
+ play.addEventListener('click', () => {
+  if (timer) return stopSlideshow();
+  play.textContent = 'Pause slideshow'; play.setAttribute('aria-pressed', 'true');
+  count.setAttribute('aria-live', 'off');
+  timer = setInterval(() => showPhoto(current + 1), 5000);
+ });
+ document.addEventListener('visibilitychange', () => { if (document.hidden) stopSlideshow(); });
+ motion.addEventListener('change', stopSlideshow);
+ gallery.addEventListener('focusin', event => { if (event.target !== play) stopSlideshow(); });
 }
