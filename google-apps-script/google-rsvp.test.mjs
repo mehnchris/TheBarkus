@@ -24,3 +24,18 @@ test('Google RSVP validation, private writes, retries, and safe text',()=>{
  for(const bad of [{...input,email:'bad'},{...input,note:'x'.repeat(2001)},{...input,attending:'maybe'},{...input,website:'spam'},{...input,name:42}]) assert.equal(context.submitRsvp(bad).ok,false);
  assert.equal(released,3);
 });
+
+test('Initialization uses the bound sheet, preserves responses, and rejects public calls or mismatched headers', () => {
+ const source=readFileSync(new URL('./Code.gs',import.meta.url),'utf8');
+ const headers=['Received at','Request ID','Guest name','Email','Attending','Plus-one name','Song request','Note to the couple'];
+ let rows=[];let savedId;let inserted=0;let hasSheet=false;let active=true;
+ const range={getValues:()=>[rows[0]],setValues:values=>{rows=values;return range;},setBackground:()=>range,setFontColor:()=>range,setFontWeight:()=>range};
+ const sheet={getLastRow:()=>rows.length,getRange:()=>range,setFrozenRows:()=>{},setColumnWidths:()=>{},setColumnWidth:()=>{}};
+ const spreadsheet={getSheetByName:()=>hasSheet?sheet:null,insertSheet:()=>{inserted++;hasSheet=true;return sheet;},setSpreadsheetTimeZone:()=>{},getId:()=> 'couple-sheet',getUrl:()=> 'private-sheet-url'};
+ const context=vm.createContext({console:{log:()=>{}},PropertiesService:{getScriptProperties:()=>({getProperty:()=>savedId,setProperty:(key,value)=>{savedId=value;}})},SpreadsheetApp:{getActiveSpreadsheet:()=>active?spreadsheet:null,getUi:()=>({}),openById:()=>spreadsheet}});
+ vm.runInContext(source,context);
+ context.initializeRsvp();assert.equal(inserted,1);assert.equal(savedId,'couple-sheet');assert.equal(JSON.stringify(rows[0]),JSON.stringify(headers));
+ rows.push(['existing response']);context.initializeRsvp();assert.equal(rows.length,2);assert.equal(inserted,1);
+ rows[0]=['unrelated data'];assert.throws(()=>context.initializeRsvp(),/headers differ/);assert.equal(rows[0][0],'unrelated data');
+ active=false;assert.throws(()=>context.initializeRsvp(),/spreadsheet script editor/);
+});

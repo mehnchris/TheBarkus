@@ -1,23 +1,29 @@
-// Only doGet and submitRsvp are callable by visitors. Helpers end in an underscore.
+// Guest submissions use submitRsvp. Initialization requires the spreadsheet editor.
 const HEADERS_ = ['Received at', 'Request ID', 'Guest name', 'Email', 'Attending', 'Plus-one name', 'Song request', 'Note to the couple'];
 
-// Run manually from the Apps Script editor once. Never expose this as a web function.
+// Run once from the editor while signed in as the couple's account.
 function setup_() {
   const properties = PropertiesService.getScriptProperties();
-  let id = properties.getProperty('RSVP_SPREADSHEET_ID');
-  if (!id) {
-    const spreadsheet = SpreadsheetApp.create('Brandon & Hope — Private wedding RSVPs');
-    id = spreadsheet.getId();
-    properties.setProperty('RSVP_SPREADSHEET_ID', id);
-    const sheet = spreadsheet.getSheets()[0];
-    sheet.setName('RSVPs');
-    sheet.getRange(1, 1, 1, HEADERS_.length).setValues([HEADERS_]).setBackground('#203f91').setFontColor('#ffffff').setFontWeight('bold');
-    sheet.setFrozenRows(1);
-    sheet.setColumnWidths(1, HEADERS_.length, 180);
-    sheet.setColumnWidth(8, 360);
-    spreadsheet.setSpreadsheetTimeZone('America/Chicago');
+  const id = properties.getProperty('RSVP_SPREADSHEET_ID');
+  const spreadsheet = id ? SpreadsheetApp.openById(id) : SpreadsheetApp.getActiveSpreadsheet();
+  if (!spreadsheet) throw new Error('Open this project from the wedding RSVP spreadsheet.');
+  let sheet = spreadsheet.getSheetByName('RSVPs');
+  if (!sheet) sheet = spreadsheet.insertSheet('RSVPs');
+  if (sheet.getLastRow() > 0) {
+    const headers = sheet.getRange(1, 1, 1, HEADERS_.length).getValues()[0];
+    if (headers.some((value, index) => value !== HEADERS_[index])) {
+      throw new Error('Existing RSVPs headers differ. No data was changed.');
+    }
+  } else {
+    sheet.getRange(1, 1, 1, HEADERS_.length).setValues([HEADERS_]);
   }
-  console.log('Private RSVP spreadsheet: https://docs.google.com/spreadsheets/d/' + id + '/edit');
+  sheet.getRange(1, 1, 1, HEADERS_.length).setBackground('#0b1e3b').setFontColor('#ffffff').setFontWeight('bold');
+  sheet.setFrozenRows(1);
+  sheet.setColumnWidths(1, HEADERS_.length, 180);
+  sheet.setColumnWidth(8, 360);
+  spreadsheet.setSpreadsheetTimeZone('America/Chicago');
+  properties.setProperty('RSVP_SPREADSHEET_ID', spreadsheet.getId());
+  console.log('Ready: ' + spreadsheet.getUrl());
 }
 
 function doGet() {
@@ -80,4 +86,10 @@ function submitRsvp(input) {
     console.error('RSVP storage failed.');
     return {ok:false,message:'We couldn’t confirm your RSVP was saved. Please try again in a moment.'};
   } finally { lock.releaseLock(); }
+}
+
+function initializeRsvp() {
+  if (!SpreadsheetApp.getActiveSpreadsheet()) throw new Error('Run initialization from the spreadsheet script editor.');
+  SpreadsheetApp.getUi();
+  setup_();
 }

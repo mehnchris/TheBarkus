@@ -7,9 +7,9 @@ if(url && !/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.te
 const source=readFileSync(join(root,'public/index.html'),'utf8');
 const form=source.match(/<form id="rsvp-form">[\s\S]*?<\/form>/)?.[0];
 if(!form) throw new Error('RSVP form not found.');
-const css=readFileSync(join(root,'public/styles.css'),'utf8');
+const css=readFileSync(join(root,'google-apps-script/form-styles.css'),'utf8');
 const client=readFileSync(join(root,'google-apps-script/form-client.js'),'utf8');
-writeFileSync(join(root,'google-apps-script/Form.html'),`<!doctype html><html lang="en"><head><base target="_top"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}\nbody{background:#f6b34f;padding:8px 6px;margin:0}.rsvp{display:block;padding:0}.form-grid{grid-template-columns:1fr;gap:0}form{max-width:620px;margin:auto}</style></head><body><div class="rsvp">${form}</div><script>${client}</script></body></html>`);
+writeFileSync(join(root,'google-apps-script/Form.html'),`<!doctype html><html lang="en"><head><base target="_top"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}\n.rsvp{display:block;padding:0}.form-grid{display:block}</style></head><body><div class="rsvp">${form}</div><script>${client}</script></body></html>`);
 mkdirSync(join(root,'docs'),{recursive:true});
 const replacement=url ? `<div class="rsvp-embed"><iframe src="${url}" title="Private wedding RSVP form" width="100%" height="1050" style="border:0" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe><p class="small">Form not loading? <a href="${url}" target="_blank" rel="noopener noreferrer">Open the RSVP form in a new tab</a>.</p></div>` : '<div class="rsvp-preview"><h3>Online RSVPs are coming soon.</h3><p>The RSVP form isn’t open yet, and no responses are being collected here.</p><p>Please check back to send your response before February 28, 2027.</p></div>';
 let html=source.replace(form,replacement);
