@@ -1,6 +1,6 @@
 # Private Google Sheets RSVP backend
 
-Status: source prepared. Not live until a Google account authorizes and deploys it, and the deployment URL is configured.
+Status: deployed and configured. Acceptance and decline submissions were verified in the private sheet on November 8, 2026. The form also loads without account cookies. The steps below document setup and future redeployment.
 
 1. Open the existing couple-owned RSVP spreadsheet, then choose **Extensions → Apps Script**. The prepared project contains `Code.gs`, `Form.html`, and `appsscript.json`.
 2. For a new installation, copy the three files from this directory into the bound project. `Form.html` is generated with `node scripts/build-pages.mjs` using the public form markup, `form-styles.css`, and `form-client.js`.

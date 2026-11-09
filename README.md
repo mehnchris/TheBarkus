@@ -42,16 +42,16 @@ npm test
 
 Tests exercise real HTTP requests and temporary SQLite storage, including duplicate updates, declining, input validation, origin checks, and blocked public access to private files. Test responses never enter the real guest database.
 
-## Before going live
+## Optional Node.js hosting
 
-This delivery is a local VS Code project, not a published website. Use Node.js 24+ hosting with HTTPS and a persistent private disk. Static-only hosting cannot run the RSVP endpoint. Set `HOST=0.0.0.0` for a hosted service, `PORT` as required by the provider, and `DATA_DIR` to its persistent private storage location. Configure reverse-proxy rate limiting for public deployment (the built-in limiter uses the immediate connection address). Review the final details and add the photos and registry when ready. The server displays the RSVP deadline but continues to accept late responses so guests can update their plans.
+The public website uses GitHub Pages with the Google Apps Script RSVP form. To run the separate Node/SQLite version instead, use Node.js 24+ hosting with HTTPS and a persistent private disk. Static-only hosting cannot run the Node RSVP endpoint. Set `HOST=0.0.0.0` for a hosted service, `PORT` as required by the provider, and `DATA_DIR` to its persistent private storage location. Configure reverse-proxy rate limiting for public deployment (the built-in limiter uses the immediate connection address). Review the final details and add the photos and registry when ready. The server displays the RSVP deadline but continues to accept late responses so guests can update their plans.
 
 The primary contact email from the intake has intentionally not been included in the public website. A gentle remembrance has been included with the user's permission.
 
-## GitHub Pages preview
-The public preview is published from the docs folder on main. It explicitly does not collect RSVPs. Regenerate it after edits with: node scripts/build-pages.mjs. The full RSVP-capable website remains in public and runs with npm start. Never copy the data folder into docs.
+## GitHub Pages website
+The public website is published from the docs folder on main. It embeds the deployed Google RSVP form and includes a direct form link. Regenerate it after edits with: node scripts/build-pages.mjs. The separate Node/SQLite version remains in public and runs with npm start. Never copy the data folder into docs.
 
 
 ## Google Sheets RSVP integration
-The Google backend and styled form are in google-apps-script. See google-apps-script/SETUP.md. Deployment is pending Google authorization and configuration; the public form remains closed until its tested deployment URL is supplied. Run node scripts/build-pages.mjs after changing the URL. No guest data is included in this repository.
+The Google backend and styled form are in google-apps-script. See google-apps-script/SETUP.md. The deployed form URL is configured. Acceptance and decline test submissions were verified in the private sheet on November 8, 2026. Two rows labeled WEBSITE TEST are verification records, not guests. Run node scripts/build-pages.mjs after changing the URL. No guest data is included in this repository.
 
